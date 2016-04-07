@@ -1,6 +1,6 @@
 # Konata
 
-micro web framework like [decebals/pippo][2] and write in Kotlin
+micro web framework like [decebals/pippo][2] and written in Kotlin
 
 ### Route DSL
 
