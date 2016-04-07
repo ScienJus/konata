@@ -1,6 +1,7 @@
 package com.scienjus.konata.core
 
 import com.scienjus.konata.core.route.RouteBuilder
+import com.scienjus.konata.core.route.RouteGroupBuilder
 import com.scienjus.konata.core.route.Router
 import io.undertow.Handlers
 import io.undertow.Undertow
@@ -18,11 +19,16 @@ import javax.servlet.http.HttpServletResponse
  * @author ScienJus
  * @date 16/2/20.
  */
-open class Konata {
+class Konata {
 
     var port = DEFAULT_PORT
 
     private val router = Router()
+
+    fun listen(port: Int): Konata {
+        this.port = port
+        return this
+    }
 
     fun start() {
         router.register()
@@ -48,15 +54,16 @@ open class Konata {
         val rootHandler = GracefulShutdownHandler(contextHandler);
 
         val server = Undertow.builder()
-                .addHttpListener(8080, "localhost")
+                .addHttpListener(port, "localhost")
                 .setHandler(rootHandler).build();
+        println("server started on localhost:" + port)
         server.start();
     }
 
     fun dispatch(req: HttpServletRequest, res: HttpServletResponse) {
-        val route = router.match(req.method, req.requestURI)
-        if (route != null) {
-            route.handler.invoke(Request(req, route.getPathParameters(req.requestURI)), Response(res))
+        val routeMatch = router.mapping(req.method, req.requestURI)
+        if (routeMatch != null) {
+            routeMatch.route.handler.invoke(Request(req, routeMatch.pathVariables), Response(res))
         }
     }
 
@@ -65,7 +72,24 @@ open class Konata {
         return route
     }
 
-    fun GET(uriPattern: String, handler: (Request, Response) -> Unit, name: String? = null): RouteBuilder {
-        return addRoute(RouteBuilder.GET(uriPattern, handler, name = name))
+    // http Method
+    fun get(uriPattern: String, handler: (Request, Response) -> Unit, name: String? = null): RouteBuilder {
+        return addRoute(RouteBuilder.get(uriPattern, handler, name = name))
     }
+
+
+    /**
+     * create a group
+     */
+    fun group(uriPattern: String, name: String? = null, init: RouteGroupBuilder.() -> Unit) {
+        val routeGroupBuilder = RouteGroupBuilder(uriPattern, name = name)
+        routeGroupBuilder.init()
+        routeGroupBuilder.routes.forEach { this.addRoute(it) }
+    }
+}
+
+fun konata(init: Konata.() -> Unit): Konata {
+    val konata = Konata()
+    konata.init()
+    return konata;
 }

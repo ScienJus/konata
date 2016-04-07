@@ -10,92 +10,81 @@ class Router {
 
     private val routeBuilders: MutableList<RouteBuilder> = mutableListOf()
 
-    private val httpMethodMatchMap: MutableMap<HttpMethod, MutableList<Route>> = mutableMapOf()
-    private val uriMatchMap: MutableMap<String, Route> = mutableMapOf()
+    private val staticRoutes: MutableMap<HttpMethod, MutableMap<String, Route>> = mutableMapOf()
+
+    private val regexRoutes: MutableMap<HttpMethod, FastRoute> = mutableMapOf()
 
     fun register() {
+        val fastRouteBuilders: MutableMap<HttpMethod, FastRouteBuilder> = mutableMapOf()
         routeBuilders.forEach { routeBuilder ->
             val route = build(routeBuilder)
-            if (httpMethodMatchMap[route.httpMethod] == null) {
-                httpMethodMatchMap[route.httpMethod] = mutableListOf()
-            }
-            httpMethodMatchMap[route.httpMethod]!!.add(route)
-            if (route.routePattern.pathParameterNames.isEmpty()) {
-                if (uriMatchMap[route.key] != null) {
-                    throw RuntimeException("more than one route have the same uri ${route.key}")
+            if (route.httpMethod == HttpMethod.ALL) {
+                HttpMethod.all().forEach { httpMethod ->
+                    if (route.isStaticRoute) {
+                        registerStaticRoute(httpMethod, route)
+                    } else {
+                        registerRegexRoute(httpMethod, route, fastRouteBuilders)
+                    }
                 }
-                uriMatchMap[route.routePattern.pattern.toString()] = route
+            } else {
+                if (route.isStaticRoute) {
+                    registerStaticRoute(route.httpMethod, route)
+                } else {
+                    registerRegexRoute(route.httpMethod, route, fastRouteBuilders)
+                }
             }
+        }
+        fastRouteBuilders.entries.forEach { entry ->
+            regexRoutes.put(entry.key, entry.value.build())
         }
     }
 
-    fun build(routeBuilder: RouteBuilder): Route {
-        val realUriPattern = realUriPattern(routeBuilder)
+    private fun registerRegexRoute(httpMethod: HttpMethod, route: Route, fastRouteBuilders: MutableMap<HttpMethod, FastRouteBuilder>) {
+        if (fastRouteBuilders[httpMethod] == null) {
+            fastRouteBuilders[httpMethod] = FastRouteBuilder()
+        }
+        fastRouteBuilders[httpMethod]!!.addRoute(route)
+    }
+
+    private fun registerStaticRoute(httpMethod: HttpMethod, route: Route) {
+        if (staticRoutes[httpMethod] == null) {
+            staticRoutes[httpMethod] = mutableMapOf()
+        }
+        if (staticRoutes[httpMethod]!![route.regex] != null) {
+            throw RuntimeException("more than one route have the same uri ${route.key}")
+        }
+        staticRoutes[route.httpMethod]!![route.regex] = route
+    }
+
+    private fun build(routeBuilder: RouteBuilder): Route {
+        val fullUriPattern = routeBuilder.fullUriPattern
         try {
-            val routePattern = RoutePattern.compile(realUriPattern)
-            return Route(routePattern, routeBuilder.httpMethod, routeBuilder.handler, routeBuilder.name)
+            val pattern = RoutePattern.compile(fullUriPattern)
+            return Route(pattern.regex, pattern.pathVariableNames, routeBuilder.httpMethod, routeBuilder.handler, routeBuilder.name)
         } catch (e: PatternSyntaxException) {
-            throw RuntimeException("Route build err, uri: $realUriPattern", e)
+            throw RuntimeException("Route build err, uri: $fullUriPattern", e)
         }
     }
 
-    private fun realUriPattern(routeBuilder: RouteBuilder): String {
-        var realUriPattern = routeBuilder.uriPattern
-        var group = routeBuilder.group
-        while (group != null) {
-            fun concatUriPattern(): String {
-                val notNullGroup: RouteGroupBuilder = group!!
-                return if (notNullGroup.uriPattern.endsWith("/")) {
-                    if (realUriPattern.startsWith("/")) {
-                        notNullGroup.uriPattern + realUriPattern.substring(1)
-                    } else {
-                        notNullGroup.uriPattern + realUriPattern
-                    }
-                } else{
-                    if (realUriPattern.startsWith("/")) {
-                        notNullGroup.uriPattern + realUriPattern
-                    } else {
-                        notNullGroup.uriPattern + "/" + realUriPattern
-                    }
-
-                }
-            }
-            realUriPattern = concatUriPattern()
-            group = group.parent
+    fun mapping(requestMethod: String, uri: String): RouteMatch? {
+        val httpMethod = HttpMethod.valueOf(requestMethod)
+        var routeMatch = mappingStaticRoute(httpMethod, uri)
+        if (routeMatch == null) {
+            routeMatch = mappingRegexRoute(httpMethod, uri)
         }
-        return realUriPattern
+        // 404 or 405
+        // TODO 405/404 page
+        return routeMatch
     }
 
-    fun match(httpMethodStr: String, uri: String): Route? {
-        val httpMethod = HttpMethod.valueOf(httpMethodStr)
-        var route = matchByUri(httpMethod, uri)
-        if (route == null) {
-            route = matchByUri(HttpMethod.ALL, uri)
-            if (route == null) {
-                route = matchByPattern(httpMethod, uri)
-                if (route == null) {
-                    route = matchByPattern(HttpMethod.ALL, uri)
-                }
-            }
-        }
-        return route
+    private fun mappingRegexRoute(httpMethod: HttpMethod, uri: String): RouteMatch? {
+        val fastRoute = regexRoutes[httpMethod] ?: return null
+        return fastRoute.find(uri)
     }
 
-    private fun matchByPattern(httpMethod: HttpMethod, uri: String): Route? {
-        val routes = httpMethodMatchMap[httpMethod] ?: return null
-        routes.forEach { route ->
-            if (route.matches(uri)) {
-                return route
-            }
-        }
-        return null
-    }
-
-    private fun matchByUri(httpMethod: HttpMethod, uri: String): Route? {
-        if (uriMatchMap["$uri#$httpMethod"] != null) {
-            return uriMatchMap[uri]
-        }
-        return null
+    private fun mappingStaticRoute(httpMethod: HttpMethod, uri: String): RouteMatch? {
+        var route =  staticRoutes[httpMethod]?.get(uri) ?: return null
+        return RouteMatch(route)
     }
 
     fun addRoute(route: RouteBuilder) {

@@ -5,5 +5,11 @@ package com.scienjus.konata.core.route
  * @date 16/2/20.
  */
 enum class HttpMethod {
-    GET, POST, ALL
+    GET, POST, ALL;
+
+    companion object {
+        fun all(): List<HttpMethod> {
+            return HttpMethod.values().filter { it != ALL }
+        }
+    }
 }
