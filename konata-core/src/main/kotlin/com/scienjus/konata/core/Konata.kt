@@ -14,6 +14,8 @@ import io.undertow.servlet.util.ImmediateInstanceFactory
 import javax.servlet.DispatcherType
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
+import kotlin.reflect.KParameter
+import kotlin.reflect.jvm.reflect
 
 /**
  * @author ScienJus
@@ -101,7 +103,6 @@ class Konata {
             }
             res.send(function.callBy(parameters).toString())
         })
-        return get(uriPattern, name = name, handler = {req, res -> })
     }
      */
 }
