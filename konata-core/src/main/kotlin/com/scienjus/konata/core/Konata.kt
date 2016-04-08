@@ -86,6 +86,24 @@ class Konata {
         routeGroupBuilder.init()
         routeGroupBuilder.routes.forEach { this.addRoute(it) }
     }
+
+    /* kotlin.reflect.KotlinReflectionInternalError: Introspecting local functions, lambdas and anonymous functions is not yet fully supported in Kotlin reflection
+    fun get(uriPattern: String, handler: Function<Any>, name: String? = null): RouteBuilder {
+        val function = handler.reflect()!!
+        return get(uriPattern, name = name, handler = { req, res ->
+            val parameters: MutableMap<KParameter, Any?> = mutableMapOf()
+            function.parameters.forEach { parameter ->
+                var value = req.getParameter(parameter.name!!)
+                if (value == null) {
+                    value = req.getPathParamter(parameter.name!!)
+                }
+                parameters.put(parameter, value)
+            }
+            res.send(function.callBy(parameters).toString())
+        })
+        return get(uriPattern, name = name, handler = {req, res -> })
+    }
+     */
 }
 
 fun konata(init: Konata.() -> Unit): Konata {

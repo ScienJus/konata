@@ -2,7 +2,6 @@ package com.scienjus.konata.core.route
 
 import com.scienjus.konata.core.Request
 import com.scienjus.konata.core.Response
-import java.util.regex.PatternSyntaxException
 
 /**
  * @author ScienJus

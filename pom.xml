@@ -24,6 +24,13 @@
       <artifactId>kotlin-stdlib</artifactId>
       <version>1.0.1-2</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.jetbrains.kotlin</groupId>
+      <artifactId>kotlin-reflect</artifactId>
+      <version>1.0.1-2</version>
+    </dependency>
+
   </dependencies>
 
   <build>
