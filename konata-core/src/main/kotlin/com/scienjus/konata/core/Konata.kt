@@ -1,5 +1,6 @@
 package com.scienjus.konata.core
 
+import com.scienjus.konata.core.route.HandlerFactory
 import com.scienjus.konata.core.route.RouteBuilder
 import com.scienjus.konata.core.route.RouteGroupBuilder
 import com.scienjus.konata.core.route.Router
@@ -14,8 +15,7 @@ import io.undertow.servlet.util.ImmediateInstanceFactory
 import javax.servlet.DispatcherType
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
-import kotlin.reflect.KParameter
-import kotlin.reflect.jvm.reflect
+import kotlin.reflect.KFunction
 
 /**
  * @author ScienJus
@@ -74,37 +74,20 @@ class Konata {
         return route
     }
 
-    // http Method
     fun get(uriPattern: String, handler: (Request, Response) -> Unit, name: String? = null): RouteBuilder {
         return addRoute(RouteBuilder.get(uriPattern, handler, name = name))
     }
 
+    fun get(uriPattern: String, function: KFunction<Any>, name: String? = null): RouteBuilder {
+        return get(uriPattern, HandlerFactory.createFunctionHandler(function), name)
+    }
 
-    /**
-     * create a group
-     */
     fun group(uriPattern: String, name: String? = null, init: RouteGroupBuilder.() -> Unit) {
         val routeGroupBuilder = RouteGroupBuilder(uriPattern, name = name)
         routeGroupBuilder.init()
         routeGroupBuilder.routes.forEach { this.addRoute(it) }
     }
 
-    /* kotlin.reflect.KotlinReflectionInternalError: Introspecting local functions, lambdas and anonymous functions is not yet fully supported in Kotlin reflection
-    fun get(uriPattern: String, handler: Function<Any>, name: String? = null): RouteBuilder {
-        val function = handler.reflect()!!
-        return get(uriPattern, name = name, handler = { req, res ->
-            val parameters: MutableMap<KParameter, Any?> = mutableMapOf()
-            function.parameters.forEach { parameter ->
-                var value = req.getParameter(parameter.name!!)
-                if (value == null) {
-                    value = req.getPathParamter(parameter.name!!)
-                }
-                parameters.put(parameter, value)
-            }
-            res.send(function.callBy(parameters).toString())
-        })
-    }
-     */
 }
 
 fun konata(init: Konata.() -> Unit): Konata {

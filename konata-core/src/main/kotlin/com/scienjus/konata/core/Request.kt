@@ -8,7 +8,7 @@ import javax.servlet.http.Part
  * @author ScienJus
  * @date 16/2/21.
  */
-class Request(private val request: HttpServletRequest, private val pathParameters: Map<String, String>) {
+class Request(private val request: HttpServletRequest, private val pathVariables: Map<String, String>) {
 
     val body: String by lazy {
         request.reader.readText()
@@ -74,8 +74,8 @@ class Request(private val request: HttpServletRequest, private val pathParameter
         return request.getParameter(name)
     }
 
-    fun getPathParamter(name: String): String? {
-        return pathParameters[name]
+    fun getPathVariable(name: String): String? {
+        return pathVariables[name]
     }
 
     fun getHeader(name: String): String? {

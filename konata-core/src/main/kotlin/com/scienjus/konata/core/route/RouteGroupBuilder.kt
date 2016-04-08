@@ -2,6 +2,7 @@ package com.scienjus.konata.core.route
 
 import com.scienjus.konata.core.Request
 import com.scienjus.konata.core.Response
+import kotlin.reflect.KFunction
 
 /**
  * @author ScienJus
@@ -23,6 +24,10 @@ class RouteGroupBuilder(val uriPattern: String, val parent: RouteGroupBuilder? =
 
     fun get(uriPattern: String, handler: (Request, Response) -> Unit, name: String? = null): RouteBuilder {
         return RouteBuilder.get(uriPattern, handler, this, name);
+    }
+
+    fun get(uriPattern: String, function: KFunction<Any>, name: String? = null): RouteBuilder {
+        return get(uriPattern, HandlerFactory.createFunctionHandler(function), name)
     }
 
     fun group(uriPattern: String, name: String? = null, init: RouteGroupBuilder.() -> Unit) {
