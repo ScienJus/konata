@@ -3,6 +3,7 @@ package com.scienjus.konata.core.route
 import com.scienjus.konata.core.Request
 import com.scienjus.konata.core.Response
 import java.lang.reflect.Type
+import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
 import kotlin.reflect.jvm.javaType
@@ -44,10 +45,12 @@ object HandlerFactory {
                             parameters.put(parameter, value)
                         } else {
                             // TODO Formatter
-                            if (parameter.type.javaType == Int::class.java) {
-                                parameters.put(parameter, value.toInt())
+                            val formatter = FormatterFactory.getFormatter((parameter.type.javaType as Class<*>).kotlin)
+                            if (formatter != null) {
+                                parameters.put(parameter, formatter.invoke(value))
                             } else {
-                                parameters.put(parameter, value)
+                                // TODO Model
+                                parameters.put(parameter, null)
                             }
                         }
                     }

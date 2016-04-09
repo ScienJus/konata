@@ -35,10 +35,6 @@ fun main(args: Array<String>) {
         })
         
         // but you can use local functions
-        fun showTag(name: String): String {
-            return "tag(name=$name)"
-        }
-
         get("/tags/:name", ::showTag)
         
         // or member function
@@ -52,6 +48,10 @@ fun main(args: Array<String>) {
         get("/tags/:name", TagController::show)
 
     }.start()
+}
+
+fun showTag(name: String): String {
+    return "tag(name=$name)"
 }
 ```
 
