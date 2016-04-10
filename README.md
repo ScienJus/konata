@@ -19,12 +19,12 @@ fun main(args: Array<String>) {
         // route groups
         group("/users") {
             get(":id", { req, res ->
-                res.send("user(id=" + req.getPathParamter("id") + ")")
+                res.send("user(id=${req.getPathVariable("id")})")
             })
 
             group("posts") {
                 get(":id", { req, res ->
-                    res.send("post(id=" + req.getPathParamter("id") + ")")
+                    res.send("post(id=${req.getPathVariable("id")})")
                 })
             }
         }
@@ -37,16 +37,15 @@ fun main(args: Array<String>) {
         // but you can use local functions
         get("/tags/:name", ::showTag)
         
-        // or member function
+        // or member functions
+        get("/tags/:name", TagController::show)
+        
         class TagController {
 
             fun show(name: String): String {
                 return "tag(name=$name)"
             }
         }
-
-        get("/tags/:name", TagController::show)
-
     }.start()
 }
 
