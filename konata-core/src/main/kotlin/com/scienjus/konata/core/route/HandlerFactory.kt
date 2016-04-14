@@ -3,7 +3,6 @@ package com.scienjus.konata.core.route
 import com.scienjus.konata.core.Request
 import com.scienjus.konata.core.Response
 import java.lang.reflect.Type
-import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
 import kotlin.reflect.jvm.javaType

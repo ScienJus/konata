@@ -18,6 +18,13 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
+  <repositories>
+    <repository>
+      <id>jebrains-all</id>
+      <url>http://repository.jetbrains.com/all</url>
+    </repository>
+  </repositories>
+
   <dependencies>
     <dependency>
       <groupId>org.jetbrains.kotlin</groupId>
@@ -29,6 +36,13 @@
       <groupId>org.jetbrains.kotlin</groupId>
       <artifactId>kotlin-reflect</artifactId>
       <version>1.0.1-2</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jetbrains.spek</groupId>
+      <artifactId>spek</artifactId>
+      <version>1.0.9</version>
+      <scope>test</scope>
     </dependency>
 
   </dependencies>
