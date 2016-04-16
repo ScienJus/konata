@@ -10,28 +10,61 @@ import org.jetbrains.spek.api.Spek
  */
 class RouterTest : Spek({
 
-    given("a router") {
-        val router = Router()
+    given("an empty handler") {
         val emptyHandler = {req: Request, res: Response -> }
 
-        on("add a route get#/users named users") {
+        given("a route mapped get#/users and named users") {
+            val router = Router()
             router.addRoute(RouteBuilder.get("/users", emptyHandler, name = "users"))
             router.register()
 
-            it("get#/users should match users") {
+            on("mapping get#/users") {
                 val routeMatch = router.mapping("GET", "/users")
 
-                shouldNotBeNull(routeMatch)
+                it("should match a route") {
+                    shouldNotBeNull(routeMatch)
+                }
 
-                shouldEqual("users", routeMatch!!.route.name)
+                it("should match the route named users") {
+                    routeMatch!!.route.name shouldEqual "users"
+                }
+            }
+            on("mapping get#/") {
+                it("should not match anything") {
+                    shouldBeNull(router.mapping("GET", "/"))
+                }
             }
 
-            it("get#/ should not match anything") {
-                shouldBeNull(router.mapping("GET", "/"))
+            on("mapping get#/users/123") {
+                it("should not match anything") {
+                    shouldBeNull(router.mapping("GET", "/users/123"))
+                }
             }
+        }
 
-            it("get#/users/123 should not match anything") {
-                shouldBeNull(router.mapping("GET", "/users/123"))
+        given("a route mapped get#/users/:id and named user detail") {
+            val router = Router()
+            router.addRoute(RouteBuilder.get("/users/:id", emptyHandler, name = "user detail"))
+            router.register()
+
+            on("mapping get#/users/123") {
+                val routeMatch = router.mapping("GET", "/users/123")
+
+                it("should match a route") {
+                    shouldNotBeNull(routeMatch)
+                }
+
+                it("should match the route named user detail") {
+                    routeMatch!!.route.name shouldEqual "user detail"
+                }
+
+                it("should have a path variable 'id'") {
+                    routeMatch!!.pathVariables.keys shouldContains "id"
+                }
+
+                it("should have a path variable 'id' values '123'") {
+                    routeMatch!!.pathVariables["id"] shouldEqual "123"
+                }
             }
         }
     }

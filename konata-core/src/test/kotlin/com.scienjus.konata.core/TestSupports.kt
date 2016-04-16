@@ -1,21 +1,17 @@
 package com.scienjus.konata.core
 
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
+import kotlin.test.*
 
 /**
  * @author ScienJus
  * @date 16/4/14.
  */
-
-fun <T> shouldEqual(expected: T, actual: T): Unit {
-    assertEquals(expected, actual)
+infix fun <T> T.shouldEqual(actual: T): Unit {
+    assertEquals(this, actual)
 }
 
-fun <T> shouldNotEqual(expected: T, actual: T): Unit {
-    assertFalse(null) { expected == actual }
+infix fun <T> T.shouldNotEqual(actual: T): Unit {
+    assertNotEquals(this, actual)
 }
 
 fun <T> shouldBeNull(actual: T?): Unit {
@@ -23,5 +19,9 @@ fun <T> shouldBeNull(actual: T?): Unit {
 }
 
 fun <T> shouldNotBeNull(actual: T?): Unit {
-    assertNotNull(actual as Any, "")
+    assertNotNull(actual as Any?)
+}
+
+infix fun <T : Collection<X>, X> T.shouldContains(actual: X): Unit {
+    assertTrue(this.contains(actual))
 }
