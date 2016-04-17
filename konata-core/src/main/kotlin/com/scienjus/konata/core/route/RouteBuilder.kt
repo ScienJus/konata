@@ -37,12 +37,42 @@ class RouteBuilder(val httpMethod: HttpMethod, val uriPattern: String, val handl
             fullUriPattern = concatUriPattern()
             group = group.parent
         }
+        if (!fullUriPattern.equals("/") && fullUriPattern.endsWith("/")) {
+            fullUriPattern = fullUriPattern.substring(0, fullUriPattern.length - 1)
+        }
         return fullUriPattern
+    }
+
+    val fullName: String? get() {
+        if (this.name == null) {
+            return null
+        }
+        var fullName = this.name
+        var group = group
+        while (group != null) {
+            if (group.name != null) {
+                fullName = "${group.name}.$fullName"
+            }
+            group = group.parent
+        }
+        return fullName
     }
 
     companion object {
         fun get(uriPattern: String, handler: (Request, Response) -> Unit, group: RouteGroupBuilder? = null, name: String? = null): RouteBuilder {
             return RouteBuilder(HttpMethod.GET, uriPattern, handler, group, name)
+        }
+
+        fun post(uriPattern: String, handler: (Request, Response) -> Unit, group: RouteGroupBuilder? = null, name: String? = null): RouteBuilder {
+            return RouteBuilder(HttpMethod.POST, uriPattern, handler, group, name)
+        }
+
+        fun put(uriPattern: String, handler: (Request, Response) -> Unit, group: RouteGroupBuilder? = null, name: String? = null): RouteBuilder {
+            return RouteBuilder(HttpMethod.PUT, uriPattern, handler, group, name)
+        }
+
+        fun delete(uriPattern: String, handler: (Request, Response) -> Unit, group: RouteGroupBuilder? = null, name: String? = null): RouteBuilder {
+            return RouteBuilder(HttpMethod.DELETE, uriPattern, handler, group, name)
         }
     }
 

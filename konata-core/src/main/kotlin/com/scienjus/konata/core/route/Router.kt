@@ -58,9 +58,10 @@ class Router {
 
     private fun build(routeBuilder: RouteBuilder): Route {
         val fullUriPattern = routeBuilder.fullUriPattern
+        val fullName = routeBuilder.fullName
         try {
             val pattern = RoutePattern.compile(fullUriPattern)
-            return Route(pattern.regex, pattern.pathVariableNames, routeBuilder.httpMethod, routeBuilder.handler, routeBuilder.name)
+            return Route(pattern.regex, pattern.pathVariableNames, routeBuilder.httpMethod, routeBuilder.handler, fullName)
         } catch (e: PatternSyntaxException) {
             throw RuntimeException("Route build err, uri: $fullUriPattern", e)
         }

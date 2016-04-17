@@ -22,8 +22,20 @@ class RouteGroupBuilder(val uriPattern: String, val parent: RouteGroupBuilder? =
         this._routes.add(route)
     }
 
-    fun get(uriPattern: String, handler: (Request, Response) -> Unit, name: String? = null): RouteBuilder {
+    fun get(uriPattern: String = "", handler: (Request, Response) -> Unit, name: String? = null): RouteBuilder {
         return RouteBuilder.get(uriPattern, handler, this, name);
+    }
+
+    fun post(uriPattern: String = "", handler: (Request, Response) -> Unit, name: String? = null): RouteBuilder {
+        return RouteBuilder.post(uriPattern, handler, this, name);
+    }
+
+    fun put(uriPattern: String = "", handler: (Request, Response) -> Unit, name: String? = null): RouteBuilder {
+        return RouteBuilder.put(uriPattern, handler, this, name);
+    }
+
+    fun delete(uriPattern: String = "", handler: (Request, Response) -> Unit, name: String? = null): RouteBuilder {
+        return RouteBuilder.delete(uriPattern, handler, this, name);
     }
 
     fun get(uriPattern: String, function: KFunction<Any>, name: String? = null): RouteBuilder {
