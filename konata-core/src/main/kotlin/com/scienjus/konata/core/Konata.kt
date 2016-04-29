@@ -82,6 +82,38 @@ class Konata {
         return get(uriPattern, HandlerFactory.createFunctionHandler(function), name)
     }
 
+    fun post(uriPattern: String, handler: (Request, Response) -> Unit, name: String? = null): RouteBuilder {
+        return addRoute(RouteBuilder.post(uriPattern, handler, name = name))
+    }
+
+    fun post(uriPattern: String, function: KFunction<Any>, name: String? = null): RouteBuilder {
+        return post(uriPattern, HandlerFactory.createFunctionHandler(function), name)
+    }
+
+    fun put(uriPattern: String, handler: (Request, Response) -> Unit, name: String? = null): RouteBuilder {
+        return addRoute(RouteBuilder.put(uriPattern, handler, name = name))
+    }
+
+    fun put(uriPattern: String, function: KFunction<Any>, name: String? = null): RouteBuilder {
+        return put(uriPattern, HandlerFactory.createFunctionHandler(function), name)
+    }
+
+    fun delete(uriPattern: String, handler: (Request, Response) -> Unit, name: String? = null): RouteBuilder {
+        return addRoute(RouteBuilder.delete(uriPattern, handler, name = name))
+    }
+
+    fun delete(uriPattern: String, function: KFunction<Any>, name: String? = null): RouteBuilder {
+        return delete(uriPattern, HandlerFactory.createFunctionHandler(function), name)
+    }
+
+    fun patch(uriPattern: String, handler: (Request, Response) -> Unit, name: String? = null): RouteBuilder {
+        return addRoute(RouteBuilder.patch(uriPattern, handler, name = name))
+    }
+
+    fun patch(uriPattern: String, function: KFunction<Any>, name: String? = null): RouteBuilder {
+        return patch(uriPattern, HandlerFactory.createFunctionHandler(function), name)
+    }
+
     fun group(uriPattern: String, name: String? = null, init: RouteGroupBuilder.() -> Unit) {
         val routeGroupBuilder = RouteGroupBuilder(uriPattern, name = name)
         routeGroupBuilder.init()
@@ -95,3 +127,4 @@ fun konata(init: Konata.() -> Unit): Konata {
     konata.init()
     return konata;
 }
+

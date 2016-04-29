@@ -18,28 +18,49 @@ class RouteGroupBuilder(val uriPattern: String, val parent: RouteGroupBuilder? =
         this._routes = mutableListOf()
     }
     
-    fun addRoute(route: RouteBuilder) {
+    fun addRoute(route: RouteBuilder): RouteBuilder {
         this._routes.add(route)
+        return route
     }
 
     fun get(uriPattern: String = "", handler: (Request, Response) -> Unit, name: String? = null): RouteBuilder {
-        return RouteBuilder.get(uriPattern, handler, this, name);
+        return addRoute(RouteBuilder.get(uriPattern, handler, this, name))
+    }
+
+    fun get(uriPattern: String = "", function: KFunction<Any>, name: String? = null): RouteBuilder {
+        return get(uriPattern, HandlerFactory.createFunctionHandler(function), name)
     }
 
     fun post(uriPattern: String = "", handler: (Request, Response) -> Unit, name: String? = null): RouteBuilder {
-        return RouteBuilder.post(uriPattern, handler, this, name);
+        return addRoute(RouteBuilder.post(uriPattern, handler, this, name))
+    }
+
+    fun post(uriPattern: String = "", function: KFunction<Any>, name: String? = null): RouteBuilder {
+        return post(uriPattern, HandlerFactory.createFunctionHandler(function), name)
     }
 
     fun put(uriPattern: String = "", handler: (Request, Response) -> Unit, name: String? = null): RouteBuilder {
-        return RouteBuilder.put(uriPattern, handler, this, name);
+        return addRoute(RouteBuilder.put(uriPattern, handler, this, name))
+    }
+
+    fun put(uriPattern: String = "", function: KFunction<Any>, name: String? = null): RouteBuilder {
+        return put(uriPattern, HandlerFactory.createFunctionHandler(function), name)
     }
 
     fun delete(uriPattern: String = "", handler: (Request, Response) -> Unit, name: String? = null): RouteBuilder {
-        return RouteBuilder.delete(uriPattern, handler, this, name);
+        return addRoute(RouteBuilder.delete(uriPattern, handler, this, name))
     }
 
-    fun get(uriPattern: String, function: KFunction<Any>, name: String? = null): RouteBuilder {
-        return get(uriPattern, HandlerFactory.createFunctionHandler(function), name)
+    fun delete(uriPattern: String = "", function: KFunction<Any>, name: String? = null): RouteBuilder {
+        return delete(uriPattern, HandlerFactory.createFunctionHandler(function), name)
+    }
+
+    fun patch(uriPattern: String = "", handler: (Request, Response) -> Unit, name: String? = null): RouteBuilder {
+        return addRoute(RouteBuilder.patch(uriPattern, handler, this, name))
+    }
+
+    fun patch(uriPattern: String = "", function: KFunction<Any>, name: String? = null): RouteBuilder {
+        return patch(uriPattern, HandlerFactory.createFunctionHandler(function), name)
     }
 
     fun group(uriPattern: String, name: String? = null, init: RouteGroupBuilder.() -> Unit) {

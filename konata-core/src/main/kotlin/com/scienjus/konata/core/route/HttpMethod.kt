@@ -5,7 +5,7 @@ package com.scienjus.konata.core.route
  * @date 16/2/20.
  */
 enum class HttpMethod {
-    GET, POST, PUT, DELETE, ALL;
+    GET, POST, PUT, DELETE, PATCH, ALL;
 
     companion object {
         fun all(): List<HttpMethod> {

@@ -74,6 +74,10 @@ class RouteBuilder(val httpMethod: HttpMethod, val uriPattern: String, val handl
         fun delete(uriPattern: String, handler: (Request, Response) -> Unit, group: RouteGroupBuilder? = null, name: String? = null): RouteBuilder {
             return RouteBuilder(HttpMethod.DELETE, uriPattern, handler, group, name)
         }
+
+        fun patch(uriPattern: String, handler: (Request, Response) -> Unit, group: RouteGroupBuilder? = null, name: String? = null): RouteBuilder {
+            return RouteBuilder(HttpMethod.PATCH, uriPattern, handler, group, name)
+        }
     }
 
 }
