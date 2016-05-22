@@ -63,18 +63,34 @@ class Router {
             val pattern = RoutePattern.compile(fullUriPattern)
             return Route(pattern.regex, pattern.pathVariableNames, routeBuilder.httpMethod, routeBuilder.handler, fullName)
         } catch (e: PatternSyntaxException) {
-            throw RuntimeException("Route build err, uri: $fullUriPattern", e)
+            throw RuntimeException("Route build error, uri: $fullUriPattern", e)
         }
     }
 
     fun mapping(requestMethod: String, uri: String): RouteMatch? {
         val httpMethod = HttpMethod.valueOf(requestMethod)
+        val routeMatch = match(httpMethod, uri)
+        if (routeMatch != null) {
+            return routeMatch
+        }
+        // 404 or 405
+        // TODO 405/404 page
+        HttpMethod.all().filter { x -> x != httpMethod }.forEach { httpMethod ->
+            val wrongMatch = match(httpMethod, uri)
+            if (wrongMatch != null) {
+                // return 405 route match
+                return null
+            }
+        }
+        // return 404 route match
+        return null
+    }
+
+    private fun match(httpMethod: HttpMethod, uri: String): RouteMatch? {
         var routeMatch = mappingStaticRoute(httpMethod, uri)
         if (routeMatch == null) {
             routeMatch = mappingRegexRoute(httpMethod, uri)
         }
-        // 404 or 405
-        // TODO 405/404 page
         return routeMatch
     }
 
