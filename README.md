@@ -31,7 +31,7 @@ fun main(args: Array<String>) {
         
         // anonymous functions is not supported yet :(
         get("/tags/:name", fun (name: String): String {
-        		return "tag(name=$name)"
+            return "tag(name=$name)"
         })
         
         // but you can use local functions
